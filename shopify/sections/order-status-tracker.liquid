@@ -1,0 +1,434 @@
+<section class="order-status-page order-status-page-{{ section.id }}">
+  <div class="order-status-card">
+    {% if section.settings.eyebrow != blank %}
+      <p class="order-status-eyebrow">{{ section.settings.eyebrow }}</p>
+    {% endif %}
+
+    {% if section.settings.heading != blank %}
+      <h1>{{ section.settings.heading }}</h1>
+    {% endif %}
+
+    {% if section.settings.description != blank %}
+      <p class="order-status-copy">{{ section.settings.description }}</p>
+    {% endif %}
+
+    <form id="order-status-form-{{ section.id }}" class="order-status-form">
+      <div class="order-status-field">
+        <label for="order-number-{{ section.id }}">{{ section.settings.order_label }}</label>
+        <input
+          id="order-number-{{ section.id }}"
+          name="orderNumber"
+          type="text"
+          placeholder="{{ section.settings.order_placeholder }}"
+          autocomplete="off"
+          required
+        >
+      </div>
+
+      <div class="order-status-field">
+        <label for="order-zip-{{ section.id }}">{{ section.settings.zip_label }}</label>
+        <input
+          id="order-zip-{{ section.id }}"
+          name="zip"
+          type="text"
+          placeholder="{{ section.settings.zip_placeholder }}"
+          autocomplete="postal-code"
+          required
+        >
+      </div>
+
+      <button id="order-status-submit-{{ section.id }}" type="submit">
+        {{ section.settings.button_text }}
+      </button>
+    </form>
+
+    <div id="order-status-result-{{ section.id }}" class="order-status-result" aria-live="polite"></div>
+  </div>
+</section>
+
+<style>
+  .order-status-page-{{ section.id }} {
+    width: 100%;
+    padding: {{ section.settings.padding_top }}px 16px {{ section.settings.padding_bottom }}px;
+    background: {{ section.settings.background_color }};
+  }
+
+  .order-status-page-{{ section.id }} .order-status-card {
+    max-width: {{ section.settings.card_width }}px;
+    margin: 0 auto;
+    padding: 36px;
+    background: {{ section.settings.card_background }};
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.07);
+  }
+
+  .order-status-page-{{ section.id }} .order-status-eyebrow {
+    margin: 0 0 10px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: {{ section.settings.muted_text_color }};
+  }
+
+  .order-status-page-{{ section.id }} h1 {
+    margin: 0 0 12px;
+    font-size: clamp(30px, 4vw, 44px);
+    line-height: 1.05;
+    color: {{ section.settings.text_color }};
+  }
+
+  .order-status-page-{{ section.id }} .order-status-copy {
+    margin: 0 0 28px;
+    color: {{ section.settings.muted_text_color }};
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .order-status-page-{{ section.id }} .order-status-form {
+    display: grid;
+    gap: 18px;
+  }
+
+  .order-status-page-{{ section.id }} .order-status-field label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    color: {{ section.settings.text_color }};
+  }
+
+  .order-status-page-{{ section.id }} .order-status-field input {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid #d7d7d7;
+    border-radius: 10px;
+    font-size: 16px;
+    background: #fff;
+    color: #111;
+  }
+
+  .order-status-page-{{ section.id }} .order-status-field input:focus {
+    outline: none;
+    border-color: {{ section.settings.button_background }};
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+  }
+
+  .order-status-page-{{ section.id }} button[type="submit"] {
+    min-height: 50px;
+    border: none;
+    border-radius: 10px;
+    background: {{ section.settings.button_background }};
+    color: {{ section.settings.button_text_color }};
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .order-status-page-{{ section.id }} button[type="submit"][disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .order-status-page-{{ section.id }} .order-status-result {
+    margin-top: 22px;
+  }
+
+  .order-status-page-{{ section.id }} .order-status-message {
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .order-status-page-{{ section.id }} .order-status-message.success {
+    background: #eef8f0;
+    border: 1px solid #b7e2bf;
+    color: #143d1d;
+  }
+
+  .order-status-page-{{ section.id }} .order-status-message.error {
+    background: #fff0f0;
+    border: 1px solid #efb8b8;
+    color: #5c1717;
+  }
+
+  .order-status-page-{{ section.id }} .order-status-message.neutral {
+    background: #f3f3f3;
+    border: 1px solid #d9d9d9;
+    color: #222;
+  }
+
+  .order-status-page-{{ section.id }} .order-status-tracking-row {
+    margin-top: 12px;
+  }
+
+  .order-status-page-{{ section.id }} .order-status-tracking-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 14px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: {{ section.settings.button_background }};
+    color: {{ section.settings.button_text_color }} !important;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    .order-status-page-{{ section.id }} {
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .order-status-page-{{ section.id }} .order-status-card {
+      padding: 24px;
+      border-radius: 14px;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const API_URL = {{ section.settings.api_url | json }};
+    const form = document.getElementById('order-status-form-{{ section.id }}');
+    const result = document.getElementById('order-status-result-{{ section.id }}');
+    const submitButton = document.getElementById('order-status-submit-{{ section.id }}');
+    const defaultButtonText = {{ section.settings.button_text | json }};
+
+    if (!form || !result || !submitButton) return;
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function secureTrackingUrl(url) {
+      if (!url) return '';
+      return String(url).replace(/^http:\/\//i, 'https://');
+    }
+
+    function showMessage(type, html) {
+      result.innerHTML = '<div class="order-status-message ' + type + '">' + html + '</div>';
+    }
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const orderNumber = String(formData.get('orderNumber') || '').trim();
+      const zip = String(formData.get('zip') || '').trim();
+
+      if (!orderNumber || !zip) {
+        showMessage('error', 'Enter your order number and ZIP code.');
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = 'Checking...';
+      showMessage('neutral', 'Looking up your order...');
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ orderNumber, zip })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            showMessage('error', 'We could not find an order with that number. Check the order number and try again.');
+            return;
+          }
+
+          if (response.status === 403) {
+            showMessage('error', 'The ZIP code does not match this order. Check the ZIP code from your billing or shipping address.');
+            return;
+          }
+
+          showMessage('error', escapeHtml(data.error || 'Something went wrong. Try again.'));
+          return;
+        }
+
+        const tracking = Array.isArray(data.tracking) ? data.tracking : [];
+
+        if (tracking.length === 0) {
+          showMessage(
+            'neutral',
+            '<strong>Order found.</strong><br>' +
+            'Status: ' + escapeHtml(data.status || 'Processing') + '<br>' +
+            escapeHtml(data.message || 'Tracking is not available yet.')
+          );
+          return;
+        }
+
+        const firstTracking = tracking[0];
+        const trackingUrl = secureTrackingUrl(firstTracking.tracking_url || data.tracking_url);
+        const carrier = firstTracking.carrier || data.carrier || 'Carrier';
+        const trackingNumber = firstTracking.tracking_number || data.tracking_number;
+        const shipmentStatus = firstTracking.status || data.status || 'available';
+
+        showMessage(
+          'success',
+          '<strong>Your order has tracking available.</strong><br>' +
+          '<div class="order-status-tracking-row">Carrier: ' + escapeHtml(carrier) + '</div>' +
+          '<div class="order-status-tracking-row">Tracking number: ' + escapeHtml(trackingNumber) + '</div>' +
+          '<div class="order-status-tracking-row">Status: ' + escapeHtml(shipmentStatus) + '</div>' +
+          (trackingUrl
+            ? '<a class="order-status-tracking-link" href="' + escapeHtml(trackingUrl) + '" target="_blank" rel="noopener noreferrer">Track package</a>'
+            : '')
+        );
+      } catch (error) {
+        showMessage('error', 'Unable to check the order right now. Try again in a few minutes.');
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = defaultButtonText;
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Order status tracker",
+  "tag": "section",
+  "class": "section-order-status-tracker",
+  "settings": [
+    {
+      "type": "text",
+      "id": "api_url",
+      "label": "API URL",
+      "default": "https://order-status2.vercel.app/api/order-status"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Order Tracking"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Check your order status"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Enter your order number and ZIP code to view your tracking information."
+    },
+    {
+      "type": "text",
+      "id": "order_label",
+      "label": "Order number label",
+      "default": "Order number"
+    },
+    {
+      "type": "text",
+      "id": "order_placeholder",
+      "label": "Order number placeholder",
+      "default": "Example: 127352"
+    },
+    {
+      "type": "text",
+      "id": "zip_label",
+      "label": "ZIP label",
+      "default": "ZIP code"
+    },
+    {
+      "type": "text",
+      "id": "zip_placeholder",
+      "label": "ZIP placeholder",
+      "default": "Example: 44114"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Check status"
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "label": "Card width",
+      "min": 420,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "default": 620
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f7f7f7"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "muted_text_color",
+      "label": "Muted text color",
+      "default": "#555555"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Order status tracker"
+    }
+  ]
+}
+{% endschema %}
