@@ -2,15 +2,5 @@
   "name": "shopify-order-status-backend",
   "version": "1.0.0",
   "private": true,
-  "description": "Vercel backend for Shopify order status lookup by order number and zip code.",
-  "type": "module",
-  "scripts": {
-    "dev": "vercel dev",
-    "start": "vercel dev"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {},
-  
+  "type": "module"
 }
