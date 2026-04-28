@@ -12,7 +12,5 @@
     "node": ">=18"
   },
   "dependencies": {},
-  "devDependencies": {
-    "vercel": "latest"
-  }
+  
 }
