@@ -1,0 +1,283 @@
+<section class="order-status-page">
+  <div class="order-status-card">
+    <p class="order-status-eyebrow">Order Tracking</p>
+    <h1>Check your order status</h1>
+    <p class="order-status-copy">
+      Enter your order number and ZIP code to view your tracking information.
+    </p>
+
+    <form id="order-status-form" class="order-status-form">
+      <div class="order-status-field">
+        <label for="order-number">Order number</label>
+        <input
+          id="order-number"
+          name="orderNumber"
+          type="text"
+          placeholder="Example: 127352"
+          autocomplete="off"
+          required
+        >
+      </div>
+
+      <div class="order-status-field">
+        <label for="order-zip">ZIP code</label>
+        <input
+          id="order-zip"
+          name="zip"
+          type="text"
+          placeholder="Example: 44114"
+          autocomplete="postal-code"
+          required
+        >
+      </div>
+
+      <button id="order-status-submit" type="submit">
+        Check status
+      </button>
+    </form>
+
+    <div id="order-status-result" class="order-status-result" aria-live="polite"></div>
+  </div>
+</section>
+
+<style>
+  .order-status-page {
+    width: 100%;
+    padding: 56px 16px;
+    background: #f7f7f7;
+  }
+
+  .order-status-card {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 36px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.07);
+  }
+
+  .order-status-eyebrow {
+    margin: 0 0 10px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #666;
+  }
+
+  .order-status-card h1 {
+    margin: 0 0 12px;
+    font-size: clamp(30px, 4vw, 44px);
+    line-height: 1.05;
+  }
+
+  .order-status-copy {
+    margin: 0 0 28px;
+    color: #555;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .order-status-form {
+    display: grid;
+    gap: 18px;
+  }
+
+  .order-status-field label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .order-status-field input {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid #d7d7d7;
+    border-radius: 10px;
+    font-size: 16px;
+    background: #fff;
+  }
+
+  .order-status-field input:focus {
+    outline: none;
+    border-color: #111;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+  }
+
+  #order-status-submit {
+    min-height: 50px;
+    border: none;
+    border-radius: 10px;
+    background: #111;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  #order-status-submit[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .order-status-result {
+    margin-top: 22px;
+  }
+
+  .order-status-message {
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .order-status-message.success {
+    background: #eef8f0;
+    border: 1px solid #b7e2bf;
+  }
+
+  .order-status-message.error {
+    background: #fff0f0;
+    border: 1px solid #efb8b8;
+  }
+
+  .order-status-message.neutral {
+    background: #f3f3f3;
+    border: 1px solid #d9d9d9;
+  }
+
+  .order-status-tracking-row {
+    margin-top: 12px;
+  }
+
+  .order-status-tracking-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 14px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: #111;
+    color: #fff !important;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    .order-status-page {
+      padding: 32px 14px;
+    }
+
+    .order-status-card {
+      padding: 24px;
+      border-radius: 14px;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const API_URL = 'https://order-status2.vercel.app/api/order-status';
+    const form = document.getElementById('order-status-form');
+    const result = document.getElementById('order-status-result');
+    const submitButton = document.getElementById('order-status-submit');
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function secureTrackingUrl(url) {
+      if (!url) return '';
+      return String(url).replace(/^http:\/\//i, 'https://');
+    }
+
+    function showMessage(type, html) {
+      result.innerHTML = '<div class="order-status-message ' + type + '">' + html + '</div>';
+    }
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const orderNumber = String(formData.get('orderNumber') || '').trim();
+      const zip = String(formData.get('zip') || '').trim();
+
+      if (!orderNumber || !zip) {
+        showMessage('error', 'Enter your order number and ZIP code.');
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = 'Checking...';
+      showMessage('neutral', 'Looking up your order...');
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ orderNumber, zip })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            showMessage('error', 'We could not find an order with that number. Check the order number and try again.');
+            return;
+          }
+
+          if (response.status === 403) {
+            showMessage('error', 'The ZIP code does not match this order. Check the ZIP code from your billing or shipping address.');
+            return;
+          }
+
+          showMessage('error', escapeHtml(data.error || 'Something went wrong. Try again.'));
+          return;
+        }
+
+        const tracking = Array.isArray(data.tracking) ? data.tracking : [];
+
+        if (tracking.length === 0) {
+          showMessage(
+            'neutral',
+            '<strong>Order found.</strong><br>' +
+            'Status: ' + escapeHtml(data.status || 'Processing') + '<br>' +
+            escapeHtml(data.message || 'Tracking is not available yet.')
+          );
+          return;
+        }
+
+        const firstTracking = tracking[0];
+        const trackingUrl = secureTrackingUrl(firstTracking.tracking_url || data.tracking_url);
+        const carrier = firstTracking.carrier || data.carrier || 'Carrier';
+        const trackingNumber = firstTracking.tracking_number || data.tracking_number;
+        const shipmentStatus = firstTracking.status || data.status || 'available';
+
+        showMessage(
+          'success',
+          '<strong>Your order has tracking available.</strong><br>' +
+          '<div class="order-status-tracking-row">Carrier: ' + escapeHtml(carrier) + '</div>' +
+          '<div class="order-status-tracking-row">Tracking number: ' + escapeHtml(trackingNumber) + '</div>' +
+          '<div class="order-status-tracking-row">Status: ' + escapeHtml(shipmentStatus) + '</div>' +
+          (trackingUrl
+            ? '<a class="order-status-tracking-link" href="' + escapeHtml(trackingUrl) + '" target="_blank" rel="noopener noreferrer">Track package</a>'
+            : '')
+        );
+      } catch (error) {
+        showMessage('error', 'Unable to check the order right now. Try again in a few minutes.');
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Check status';
+      }
+    });
+  })();
+</script>
