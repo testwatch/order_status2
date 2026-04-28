@@ -1,7 +1,1 @@
-{
-  "functions": {
-    "api/order-status.js": {
-      "runtime": "nodejs18.x"
-    }
-  }
-}
+{}
